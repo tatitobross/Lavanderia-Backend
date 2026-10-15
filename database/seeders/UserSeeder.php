@@ -18,9 +18,8 @@ class UserSeeder extends Seeder
     {
         $roles = Role::pluck('id', 'role');
         foreach ([
-            ['username' => 'admin', 'name' => 'Administrador Condominio', 'email' => 'admin@condominio.test', 'role' => 'Administrador'],
-            ['username' => 'residente', 'name' => 'Residente Demo', 'email' => 'residente@condominio.test', 'role' => 'Residente'],
-            ['username' => 'guardia', 'name' => 'Guardia Demo', 'email' => 'guardia@condominio.test', 'role' => 'Guardia'],
+            ['username' => 'admin', 'name' => 'Administrador Lavandería', 'email' => 'admin@lavanderia.test', 'role' => 'Administrador'],
+            ['username' => 'operador', 'name' => 'Operador de lavandería', 'email' => 'operador@lavanderia.test', 'role' => 'Operador'],
         ] as $data) {
             User::updateOrCreate(['username' => $data['username']], [
                 'password' => Hash::make('Hola123'), 'name' => $data['name'], 'gender' => 'No especificado',

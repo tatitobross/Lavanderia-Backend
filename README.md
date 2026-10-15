@@ -1,20 +1,21 @@
-# API Condominio
+# API Lavandería
 
-Proyecto 16: API REST para condominio con Laravel Sanctum, roles y los módulos de viviendas, residentes, visitas, cuotas e incidencias.
+API REST para una lavandería con Laravel Sanctum, roles y los módulos de clientes, tipos de prenda, servicios y órdenes.
 
 ## Uso local
 
-1. Cree la base MySQL `condominio` y confirme las credenciales de `.env`.
-2. Ejecute `php artisan migrate --seed`.
-3. Ejecute `php artisan serve`.
+1. Cree la base MySQL `lavanderia` y confirme las credenciales de `.env`.
+2. Instale las dependencias con `composer install`.
+3. Ejecute `php artisan migrate --seed`.
+4. Ejecute `php artisan serve`.
 
-Usuarios de demostración: `admin`, `residente` y `guardia`. Contraseña: `Hola123`.
+Usuarios de demostración: `admin` y `operador`. Contraseña: `Hola123`.
 
 `POST /api/login` recibe `username`, `password` y opcionalmente `device_name`; devuelve un token. Las rutas privadas usan `Authorization: Bearer <token>`.
 
-Los listados son `GET /api/homes`, `/residents`, `/visits`, `/payments` e `/incidents`, con paginación y búsqueda. El dashboard está en `GET /api/dashboard`. Administrador maneja los CRUDs; Guardia registra entrada/salida y Residente o Administrador autorizan visitas.
+Los listados son `GET /api/customers`, `/garment-types`, `/services` y `/orders`, con paginación y búsqueda. El dashboard está en `GET /api/dashboard`. El administrador maneja todos los catálogos; el operador registra y actualiza órdenes.
 
-Reglas de negocio: una visita debe autorizarse antes de entrar y entrar antes de salir; una cuota se paga una sola vez; una vivienda no puede duplicar una cuota en el mismo período.
+Reglas de negocio: el importe se calcula automáticamente con el precio del servicio y la cantidad (por libra o por unidad); cada orden recibe una fecha estimada y solo puede avanzar por los estados Recibida, En proceso, Lista para entrega y Entregada.
 
 ---
 

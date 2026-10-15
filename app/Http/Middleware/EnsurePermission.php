@@ -14,7 +14,7 @@ class EnsurePermission
      * Handle an incoming request.
      *
      * Expected middleware usage: \"permission:module,action\"
-     * where module is e.g. 'visitas' and action is 'manage' (or any defined action).
+     * where module is e.g. 'orders' and action is 'manage' (or any defined action).
      */
     public function handle(Request $request, Closure $next, $module, $action)
     {

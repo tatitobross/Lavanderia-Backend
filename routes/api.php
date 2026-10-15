@@ -1,29 +1,42 @@
 <?php
 
+use App\Http\Controllers\{AuthController, LaundryController};
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\{AuthController, CondominiumController, PrivilegeController, RoleController};
 
 Route::post('login', [AuthController::class, 'login']);
+
 Route::middleware(['auth:sanctum', 'active'])->group(function () {
-    Route::get('user', [AuthController::class, 'user']); Route::put('profile', [AuthController::class, 'updateProfile']); Route::put('password', [AuthController::class, 'changePassword']); Route::post('logout', [AuthController::class, 'logout']); Route::get('dashboard', [CondominiumController::class, 'dashboard']);
-    Route::get('export/{module}', [CondominiumController::class, 'export'])->middleware('role:Administrador');
-    foreach (['homes', 'residents', 'visits', 'payments', 'incidents'] as $module) {
-        Route::get($module, [CondominiumController::class, $module]);
-    }
-    Route::get('homes/{home}', [CondominiumController::class, 'showHome']);
-    Route::get('residents/{resident}', [CondominiumController::class, 'showResident']);
-    Route::get('visits/{visit}', [CondominiumController::class, 'showVisit']);
-    Route::get('payments/{payment}', [CondominiumController::class, 'showPayment']);
-    Route::get('incidents/{incident}', [CondominiumController::class, 'showIncident']);
-    Route::post('visits/{visit}/authorize', [CondominiumController::class, 'authorizeVisit'])->middleware('role:Administrador,Residente');
-    Route::post('visits', [CondominiumController::class, 'storeVisit'])->middleware('role:Administrador,Residente');
-    Route::post('visits/{visit}/entry', [CondominiumController::class, 'entry'])->middleware('role:Administrador,Guardia'); Route::post('visits/{visit}/exit', [CondominiumController::class, 'exit'])->middleware('role:Administrador,Guardia'); Route::post('payments/{payment}/pay', [CondominiumController::class, 'pay'])->middleware('role:Administrador');
+    Route::get('user', [AuthController::class, 'user']);
+    Route::put('profile', [AuthController::class, 'updateProfile']);
+    Route::put('password', [AuthController::class, 'changePassword']);
+    Route::post('logout', [AuthController::class, 'logout']);
+    Route::get('dashboard', [LaundryController::class, 'dashboard']);
+
+    Route::get('customers', [LaundryController::class, 'customers']);
+    Route::get('customers/{customer}', [LaundryController::class, 'showCustomer']);
+    Route::get('garment-types', [LaundryController::class, 'garmentTypes']);
+    Route::get('garment-types/{garmentType}', [LaundryController::class, 'showGarmentType']);
+    Route::get('services', [LaundryController::class, 'services']);
+    Route::get('services/{service}', [LaundryController::class, 'showService']);
+    Route::get('orders', [LaundryController::class, 'orders']);
+    Route::get('orders/{order}', [LaundryController::class, 'showOrder']);
+
+    Route::middleware('role:Administrador,Operador')->group(function () {
+        Route::post('orders', [LaundryController::class, 'storeOrder']);
+        Route::put('orders/{order}', [LaundryController::class, 'updateOrder']);
+        Route::post('orders/{order}/advance', [LaundryController::class, 'advanceOrder']);
+    });
+
     Route::middleware('role:Administrador')->group(function () {
-        Route::get('roles', [RoleController::class, 'index']);
-        Route::get('privileges', [PrivilegeController::class, 'index']);
-        Route::post('privileges', [PrivilegeController::class, 'store']);
-        foreach (['Home' => 'homes', 'Resident' => 'residents', 'Visit' => 'visits', 'Payment' => 'payments', 'Incident' => 'incidents'] as $name => $path) {
-            $parameter = strtolower($name); Route::post($path, [CondominiumController::class, "store{$name}"]); Route::put("{$path}/{{$parameter}}", [CondominiumController::class, "update{$name}"]); Route::delete("{$path}/{{$parameter}}", [CondominiumController::class, "destroy{$name}"]);
-        }
+        Route::post('customers', [LaundryController::class, 'storeCustomer']);
+        Route::put('customers/{customer}', [LaundryController::class, 'updateCustomer']);
+        Route::delete('customers/{customer}', [LaundryController::class, 'destroyCustomer']);
+        Route::post('garment-types', [LaundryController::class, 'storeGarmentType']);
+        Route::put('garment-types/{garmentType}', [LaundryController::class, 'updateGarmentType']);
+        Route::delete('garment-types/{garmentType}', [LaundryController::class, 'destroyGarmentType']);
+        Route::post('services', [LaundryController::class, 'storeService']);
+        Route::put('services/{service}', [LaundryController::class, 'updateService']);
+        Route::delete('services/{service}', [LaundryController::class, 'destroyService']);
+        Route::delete('orders/{order}', [LaundryController::class, 'destroyOrder']);
     });
 });
