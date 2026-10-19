@@ -10,24 +10,23 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
     Route::put('profile', [AuthController::class, 'updateProfile']);
     Route::put('password', [AuthController::class, 'changePassword']);
     Route::post('logout', [AuthController::class, 'logout']);
-    Route::get('dashboard', [LaundryController::class, 'dashboard']);
-
-    Route::get('customers', [LaundryController::class, 'customers']);
-    Route::get('customers/{customer}', [LaundryController::class, 'showCustomer']);
-    Route::get('garment-types', [LaundryController::class, 'garmentTypes']);
-    Route::get('garment-types/{garmentType}', [LaundryController::class, 'showGarmentType']);
-    Route::get('services', [LaundryController::class, 'services']);
-    Route::get('services/{service}', [LaundryController::class, 'showService']);
-    Route::get('orders', [LaundryController::class, 'orders']);
-    Route::get('orders/{order}', [LaundryController::class, 'showOrder']);
-
     Route::middleware('role:Administrador,Operador')->group(function () {
+        // El operador sólo consulta los catálogos para crear y atender órdenes.
+        Route::get('customers', [LaundryController::class, 'customers']);
+        Route::get('customers/{customer}', [LaundryController::class, 'showCustomer']);
+        Route::get('garment-types', [LaundryController::class, 'garmentTypes']);
+        Route::get('garment-types/{garmentType}', [LaundryController::class, 'showGarmentType']);
+        Route::get('services', [LaundryController::class, 'services']);
+        Route::get('services/{service}', [LaundryController::class, 'showService']);
+        Route::get('orders', [LaundryController::class, 'orders']);
+        Route::get('orders/{order}', [LaundryController::class, 'showOrder']);
         Route::post('orders', [LaundryController::class, 'storeOrder']);
         Route::put('orders/{order}', [LaundryController::class, 'updateOrder']);
         Route::post('orders/{order}/advance', [LaundryController::class, 'advanceOrder']);
     });
 
     Route::middleware('role:Administrador')->group(function () {
+        Route::get('dashboard', [LaundryController::class, 'dashboard']);
         Route::post('customers', [LaundryController::class, 'storeCustomer']);
         Route::put('customers/{customer}', [LaundryController::class, 'updateCustomer']);
         Route::delete('customers/{customer}', [LaundryController::class, 'destroyCustomer']);

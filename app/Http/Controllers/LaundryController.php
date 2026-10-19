@@ -61,7 +61,23 @@ class LaundryController extends Controller
         $data['unit_price'] = $service->unit_price; $data['total'] = round($service->unit_price * $data['quantity'],2); $data['estimated_at'] = now()->addDays($service->estimated_days); $data['received_by'] = $order?->received_by ?? $request->user()->id;
         if (($data['status'] ?? '') === 'delivered') $data['completed_at'] = now();
         $record = $order ?? new LaundryOrder; $record->fill($data)->save();
-        return response()->json(['message'=>$order ? 'Orden actualizada.' : 'Orden registrada.','data'=>$record->load('customer','garmentType','laundryService','receiver')],$order ? 200 : 201);
+        $record->load('customer','garmentType','laundryService','receiver');
+        $response = ['message'=>$order ? 'Orden actualizada.' : 'Orden registrada.','data'=>$record];
+        if (!$order) $response['invoice'] = $this->invoice($record);
+        return response()->json($response, $order ? 200 : 201);
+    }
+    private function invoice(LaundryOrder $order): array {
+        return [
+            'number' => 'LAV-'.str_pad((string) $order->id, 6, '0', STR_PAD_LEFT),
+            'issued_at' => $order->created_at?->toIso8601String(),
+            'customer' => ['name' => $order->customer?->name, 'phone' => $order->customer?->phone],
+            'garment_type' => ['name' => $order->garmentType?->name],
+            'service' => ['name' => $order->laundryService?->name],
+            'quantity' => $order->quantity,
+            'unit_price' => $order->unit_price,
+            'total' => $order->total,
+            'estimated_at' => $order->estimated_at?->toIso8601String(),
+        ];
     }
     public function advanceOrder(LaundryOrder $order) { $next=['received'=>'processing','processing'=>'ready','ready'=>'delivered']; if (!isset($next[$order->status])) return response()->json(['message'=>'La orden no puede avanzar desde su estado actual.'],422); $order->status=$next[$order->status]; if($order->status==='delivered') $order->completed_at=now(); $order->save(); return response()->json(['message'=>'Estado actualizado.','data'=>$order]); }
     public function dashboard() { return response()->json(['customers'=>Customer::where('status','active')->count(),'orders_today'=>LaundryOrder::whereDate('created_at',today())->count(),'processing'=>LaundryOrder::whereIn('status',['received','processing'])->count(),'ready'=>LaundryOrder::where('status','ready')->count()]); }
